@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Gallery - Cars, Flowers, Dogs & Indian Sweets</title>
+<!-- Tailwind CSS for utility styling support -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* Base Reset & Typography */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    /* Rich deep navy gradient backdrop matching screenshot */
+    background: radial-gradient(circle at top center, #133b70 0%, #0b1f40 45%, #051124 100%);
+    background-attachment: fixed;
+    color: #ffffff;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    overflow-x: hidden;
+}
+
+/* Header & Typography styling */
+header {
+    text-align: center;
+    padding: 60px 20px 30px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+h1.main-title {
+    font-size: 3.2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+    margin-bottom: 16px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.subtitle {
+    color: #a3c1e8;
+    font-size: 1.15rem;
+    font-weight: 400;
+    line-height: 1.6;
+    margin-bottom: 36px;
+}
+
+/* Category Filter Navigation */
+.filter-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 45px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #c0d7f5;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.filter-btn.active {
+    background: #1d7afc;
+    color: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 25px rgba(29, 122, 252, 0.65), 0 0 10px rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Gallery Grid Layout */
+.gallery-container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+/* Card Visual Design */
+.card {
+    background: #112547;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    opacity: 1;
+    transform: scale(1);
+}
+
+.card.hidden-card {
+    display: none;
+}
+
+.card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(29, 122, 252, 0.3);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.card-img-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #0a172e;
+}
+
+.card-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.card:hover .card-img-wrapper img {
+    transform: scale(1.08);
+}
+
+.card-footer {
+    background: #12284c;
+    padding: 18px;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.2px;
+}
+
+/* Modal Lightbox */
+.lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 10, 22, 0.92);
+    backdrop-filter: blur(16px);
+    z-index: 9999;
+    display: opacity;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.lightbox-img-box {
+    max-width: 100%;
+    max-height: 72vh;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(29, 122, 252, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.lightbox-img-box img {
+    max-width: 100%;
+    max-height: 72vh;
+    object-fit: contain;
+    display: block;
+}
+
+.lightbox-info {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.lightbox-badge {
+    display: inline-block;
+    background: #1d7afc;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.lightbox-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.lightbox-btn {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.lightbox-btn:hover {
+    background: #1d7afc;
+    border-color: #3b82f6;
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(29, 122, 252, 0.6);
+}
+
+.lightbox-close {
+    top: 30px;
+    right: 30px;
+}
+
+.lightbox-prev {
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.lightbox-next {
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.lightbox-prev:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+
+.lightbox-next:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Responsive Layout */
+@media (max-width: 1120px) {
+    .gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    h1.main-title {
+        font-size: 2.3rem;
+    }
+    .subtitle {
+        font-size: 1rem;
+    }
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    .lightbox-prev { left: 15px; }
+    .lightbox-next { right: 15px; }
+    .lightbox-close { top: 15px; right: 15px; }
+}
+
+@media (max-width: 480px) {
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+    .filter-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <h1 class="main-title">Our Gallery</h1>
+    <p class="subtitle">
+        Browse four exciting gallery categories featuring stunning Cars, colorful Flowers, adorable Dogs, and delicious Indian Sweets.
+    </p>
+
+    <!-- Filter Buttons -->
+    <div class="filter-wrapper">
+        <button class="filter-btn active" data-filter="cars" onclick="switchCategory('cars', this)">
+            Cars
+        </button>
+        <button class="filter-btn" data-filter="flowers" onclick="switchCategory('flowers', this)">
+            Flowers
+        </button>
+        <button class="filter-btn" data-filter="dogs" onclick="switchCategory('dogs', this)">
+            Dogs
+        </button>
+        <button class="filter-btn" data-filter="sweets" onclick="switchCategory('sweets', this)">
+            Indian Sweets
+        </button>
+    </div>
+</header>
+
+<!-- Main Gallery Section -->
+<main class="gallery-container">
+    <div class="gallery-grid" id="galleryGrid">
+        <!-- Dynamic Cards rendered via Javascript -->
+    </div>
+</main>
+
+<!-- Fullscreen Lightbox Modal -->
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-btn lightbox-close" id="closeBtn" title="Close (Esc)">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    
+    <button class="lightbox-btn lightbox-prev" id="prevBtn" title="Previous (Left Arrow)">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+    </button>
+
+    <div class="lightbox-content">
+        <div class="lightbox-img-box">
+            <img id="lightboxImg" src="" alt="">
+        </div>
+        <div class="lightbox-info">
+            <span class="lightbox-badge" id="lightboxBadge">Category</span>
+            <h3 class="lightbox-title" id="lightboxTitle">Item Title</h3>
+        </div>
+    </div>
+
+    <button class="lightbox-btn lightbox-next" id="nextBtn" title="Next (Right Arrow)">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+</div>
+
+<script>
+// SVG Fallback Generator for image loading security
+function createFallbackSvg(title, category) {
+    const bgColors = {
+        cars: '#1e293b',
+        flowers: '#4c0519',
+        dogs: '#14532d',
+        sweets: '#78350f'
+    };
+    const accentColors = {
+        cars: '#38bdf8',
+        flowers: '#f43f5e',
+        dogs: '#4ade80',
+        sweets: '#fbbf24'
+    };
+    
+    const bg = bgColors[category] || '#0f172a';
+    const accent = accentColors[category] || '#3b82f6';
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+        <rect width="100%" height="100%" fill="${bg}"/>
+        <circle cx="400" cy="250" r="110" fill="none" stroke="${accent}" stroke-width="3" opacity="0.4"/>
+        <text x="400" y="270" font-family="'Plus Jakarta Sans', sans-serif" font-size="42" font-weight="bold" fill="${accent}" text-anchor="middle">${title.charAt(0)}</text>
+        <text x="400" y="410" font-family="'Plus Jakarta Sans', sans-serif" font-size="28" font-weight="bold" fill="#ffffff" text-anchor="middle">${title}</text>
+        <text x="400" y="450" font-family="'Plus Jakarta Sans', sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle" letter-spacing="2">${category.toUpperCase()}</text>
+    </svg>`;
+    
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+// 32 High-Quality Gallery Items across 4 distinct categories
+const galleryItems = [
+    // CARS
+    { id: "car1", category: "cars", title: "Audi", url: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=800&q=80" },
+    { id: "car2", category: "cars", title: "BMW", url: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80" },
+    { id: "car3", category: "cars", title: "Ferrari", url: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=800&q=80" },
+    { id: "car4", category: "cars", title: "Lamborghini", url: "https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=800&q=80" },
+    { id: "car5", category: "cars", title: "Porsche", url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80" },
+    { id: "car6", category: "cars", title: "Mercedes-Benz", url: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=800&q=80" },
+    { id: "car7", category: "cars", title: "Mustang", url: "https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=800&q=80" },
+    { id: "car8", category: "cars", title: "Aston Martin", url: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80" },
+
+    // FLOWERS
+    { id: "flw1", category: "flowers", title: "Red Rose", url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80" },
+    { id: "flw2", category: "flowers", title: "Lotus", url: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80" },
+    { id: "flw3", category: "flowers", title: "Sunflower", url: "https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=800&q=80" },
+    { id: "flw4", category: "flowers", title: "Orchid", url: "https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=800&q=80" },
+    { id: "flw5", category: "flowers", title: "Tulip", url: "https://images.unsplash.com/photo-1520763185298-1b434c919102?auto=format&fit=crop&w=800&q=80" },
+    { id: "flw6", category: "flowers", title: "Cherry Blossom", url: "https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=800&q=80" },
+    { id: "flw7", category: "flowers", title: "Dahlia", url: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&w=800&q=80" },
+    { id: "flw8", category: "flowers", title: "Hibiscus", url: "https://images.unsplash.com/photo-1550950158-d0d960dff51b?auto=format&fit=crop&w=800&q=80" },
+
+    // DOGS
+    { id: "dog1", category: "dogs", title: "Golden Retriever", url: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=800&q=80" },
+    { id: "dog2", category: "dogs", title: "German Shepherd", url: "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?auto=format&fit=crop&w=800&q=80" },
+    { id: "dog3", category: "dogs", title: "Siberian Husky", url: "https://images.unsplash.com/photo-1605568427561-40dd23c2acea?auto=format&fit=crop&w=800&q=80" },
+    { id: "dog4", category: "dogs", title: "Beagle", url: "https://images.unsplash.com/photo-1505628346881-b72b27e84530?auto=format&fit=crop&w=800&q=80" },
+    { id: "dog5", category: "dogs", title: "French Bulldog", url: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=800&q=80" },
+    { id: "dog6", category: "dogs", title: "Poodle", url: "https://images.unsplash.com/photo-1561037404-61cd46aa615b?auto=format&fit=crop&w=800&q=80" },
+    { id: "dog7", category: "dogs", title: "Labrador Retriever", url: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=800&q=80" },
+    { id: "dog8", category: "dogs", title: "Pomeranian", url: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80" },
+
+    // INDIAN SWEETS
+    { id: "swt1", category: "sweets", title: "Gulab Jamun", url: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80" },
+    { id: "swt2", category: "sweets", title: "Jalebi", url: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80" },
+    { id: "swt3", category: "sweets", title: "Rasgulla", url: "https://images.unsplash.com/photo-1605197586508-493075786b5c?auto=format&fit=crop&w=800&q=80" },
+    { id: "swt4", category: "sweets", title: "Kaju Katli", url: "https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=800&q=80" },
+    { id: "swt5", category: "sweets", title: "Motichoor Laddoo", url: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=800&q=80" },
+    { id: "swt6", category: "sweets", title: "Rasmalai", url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80" },
+    { id: "swt7", category: "sweets", title: "Mysurpa", url: "https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?auto=format&fit=crop&w=800&q=80" },
+    { id: "swt8", category: "sweets", title: "Soan Papdi", url: "https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?auto=format&fit=crop&w=800&q=80" }
+];
+
+let activeCategory = 'cars';
+let activeFilteredItems = [];
+let currentLightboxIndex = 0;
+
+const galleryGrid = document.getElementById('galleryGrid');
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxTitle = document.getElementById('lightboxTitle');
+const lightboxBadge = document.getElementById('lightboxBadge');
+
+// Initial Setup & Card Rendering
+function renderGallery() {
+    galleryGrid.innerHTML = '';
+    
+    // Filter items based on active tab category
+    activeFilteredItems = galleryItems.filter(item => item.category === activeCategory);
+
+    activeFilteredItems.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.setAttribute('data-id', item.id);
+        
+        const fallbackUrl = createFallbackSvg(item.title, item.category);
+
+        card.innerHTML = `
+            <div class="card-img-wrapper">
+                <img src="${item.url}" alt="${item.title}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackUrl}';">
+            </div>
+            <div class="card-footer">
+                <div class="card-title">${item.title}</div>
+            </div>
+        `;
+
+        card.addEventListener('click', () => openLightbox(index));
+        galleryGrid.appendChild(card);
+    });
+}
+
+// Category Switch Controller
+function switchCategory(category, buttonElement) {
+    if (activeCategory === category) return;
+
+    activeCategory = category;
+
+    // Update Tab Styles
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    buttonElement.classList.add('active');
+
+    // Smooth re-rendering
+    galleryGrid.style.opacity = '0';
+    galleryGrid.style.transform = 'translateY(10px)';
+    galleryGrid.style.transition = 'all 0.25s ease';
+
+    setTimeout(() => {
+        renderGallery();
+        galleryGrid.style.opacity = '1';
+        galleryGrid.style.transform = 'translateY(0)';
+    }, 200);
+}
+
+// Lightbox Handlers
+function openLightbox(index) {
+    currentLightboxIndex = index;
+    updateLightboxContent();
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function updateLightboxContent() {
+    const item = activeFilteredItems[currentLightboxIndex];
+    if (!item) return;
+
+    const fallbackUrl = createFallbackSvg(item.title, item.category);
+
+    lightboxImg.onerror = function() {
+        this.onerror = null;
+        this.src = fallbackUrl;
+    };
+
+    lightboxImg.src = item.url;
+    lightboxImg.alt = item.title;
+    lightboxTitle.textContent = item.title;
+    
+    // Format Badge Text
+    const categoryNames = {
+        cars: 'Car Model',
+        flowers: 'Flower Species',
+        dogs: 'Dog Breed',
+        sweets: 'Indian Sweet'
+    };
+    lightboxBadge.textContent = categoryNames[item.category] || item.category;
+}
+
+function nextLightboxImage() {
+    currentLightboxIndex = (currentLightboxIndex + 1) % activeFilteredItems.length;
+    updateLightboxContent();
+}
+
+function prevLightboxImage() {
+    currentLightboxIndex = (currentLightboxIndex - 1 + activeFilteredItems.length) % activeFilteredItems.length;
+    updateLightboxContent();
+}
+
+// Event Listeners for Lightbox Buttons
+document.getElementById('closeBtn').addEventListener('click', closeLightbox);
+document.getElementById('nextBtn').addEventListener('click', nextLightboxImage);
+document.getElementById('prevBtn').addEventListener('click', prevLightboxImage);
+
+// Backdrop Click to Close
+lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+});
+
+// Keyboard Nav
+document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') nextLightboxImage();
+    if (e.key === 'ArrowLeft') prevLightboxImage();
+});
+
+// Initial Render on Page Load
+document.addEventListener('DOMContentLoaded', renderGallery);
+</script>
+
+</body>
+</html>
